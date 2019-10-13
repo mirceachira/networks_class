@@ -106,7 +106,7 @@ int main(int argc, char **argv)
         sockQuit();
         return 1;
     } else {
-        printf("get address success!\n");
+        printf("get address success %d!\n");
     }
 
     // Attempt to connect to an address until one succeeds
@@ -143,22 +143,16 @@ int main(int argc, char **argv)
         printf("connection success!\n");
     }
 
-
-    char *sendbuf = "this is a test";
-    int intArray[100] = {1,2,3,4,5,6, 0};
-    int arrLen = 7;
-
-    // Send an initial buffer
-    for (int i=0; i<arrLen; i++) {
-      iResult = send( ConnectSocket, &intArray[i], sizeof(intArray[i]), 0 );
-    }
+    // Send a string
+    char *sendbuf = "a b c d e f g";
+    iResult = send( ConnectSocket, sendbuf, (int)strlen(sendbuf), 0 );
     if (iResult == SOCKET_ERROR) {
         printf("send failed\n");
         sockClose(ConnectSocket);
         sockQuit();
         return 1;
     } else {
-        printf("send success, sent %s\n", sendbuf);
+        printf("send success!\n");
     }
 
     printf("Bytes Sent: %d\n", iResult);
@@ -166,13 +160,15 @@ int main(int argc, char **argv)
     // Receive until the peer closes the connection
     do {
         iResult = recv(ConnectSocket, recvbuf, recvbuflen, 0);
-        if ( iResult > 0 )
-            printf("Bytes received: %d, received: %s\n", iResult, recvbuf);
-        else if ( iResult == 0 )
+        if ( iResult > 0 ) {
+            printf("Bytes received: %d\n", iResult);
+            printf("Those bytes represent: %s\n", recvbuf);
+        } else if ( iResult == 0 )
             printf("Connection closed\n");
         else
             printf("recv failed\n");
-    } while(iResult > 0);
+
+    } while( iResult > 0 );
 
     // cleanup
     sockClose(ConnectSocket);

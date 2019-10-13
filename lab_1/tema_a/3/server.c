@@ -51,6 +51,7 @@ int sockQuit(void)
 
 int sockClose(SOCKET sock)
 {
+
   int status = 0;
 
   #ifdef _WIN32
@@ -62,6 +63,7 @@ int sockClose(SOCKET sock)
   #endif
 
   return status;
+
 }
 
 
@@ -153,33 +155,44 @@ int main(void)
     sockClose(ListenSocket);
 
     // Receive until the peer shuts down the connection
-    int sum = 0, newInt;
     do {
-        iResult = recv(ClientSocket, &newInt, sizeof(newInt), 0);
-        printf("Bytes received: %d\n", iResult);
-        printf("Number received: %d\n", newInt);
+        iResult = recv(ClientSocket, recvbuf, recvbuflen, 0);
         if (iResult > 0) {
-            sum += newInt;
-            printf("Sum is now: %d\n", sum);
-        }
-        else if (iResult == 0) {
-            // Send the sum of the numbers so far
-            iSendResult = send( ClientSocket, &sum, sizeof(sum), 0 );
+            printf("Bytes received: %d\n", iResult);
+            printf("Those bytes represent: %s\n", recvbuf);
+
+            char result[recvbuflen];
+            int i = 0;
+            do {
+                i++;
+            } while (recvbuf[i] != '\0');
+            printf("Sending: ");
+            for (int j=0; j<i;j++) {
+                result[j] = recvbuf[i - 1 - j];
+                printf("%c", result[j]);
+            }
+            printf("\n");
+
+            // Echo the buffer back to the sender
+            iSendResult = send( ClientSocket, result, recvbuflen, 0 );
             if (iSendResult == SOCKET_ERROR) {
                 printf("send failed\n");
                 sockClose(ClientSocket);
                 sockQuit();
                 return 1;
             }
+            printf("String sent: %s\n", result);
             printf("Bytes sent: %d\n", iSendResult);
-        } else  {
+        }
+        else if (iResult == 0)
+            printf("Connection closing...\n");
+        else  {
             printf("recv failed\n");
             sockClose(ClientSocket);
             sockQuit();
             return 1;
         }
-
-    } while (newInt > 0);
+    } while (iResult > 0);
 
     // cleanup
     sockClose(ClientSocket);

@@ -51,6 +51,7 @@ int sockQuit(void)
 
 int sockClose(SOCKET sock)
 {
+
   int status = 0;
 
   #ifdef _WIN32
@@ -62,6 +63,7 @@ int sockClose(SOCKET sock)
   #endif
 
   return status;
+
 }
 
 
@@ -153,18 +155,19 @@ int main(void)
     sockClose(ListenSocket);
 
     // Receive until the peer shuts down the connection
-    int sum = 0, newInt;
     do {
-        iResult = recv(ClientSocket, &newInt, sizeof(newInt), 0);
-        printf("Bytes received: %d\n", iResult);
-        printf("Number received: %d\n", newInt);
+        iResult = recv(ClientSocket, recvbuf, recvbuflen, 0);
         if (iResult > 0) {
-            sum += newInt;
-            printf("Sum is now: %d\n", sum);
-        }
-        else if (iResult == 0) {
-            // Send the sum of the numbers so far
-            iSendResult = send( ClientSocket, &sum, sizeof(sum), 0 );
+            printf("Bytes received: %d\n", iResult);
+            printf("Those bytes represent: %s\n", recvbuf);
+
+            int spaces = 0;
+            for(int i = 0; recvbuf[i] != '\0'; i++)
+              if (recvbuf[i] == ' ')
+                spaces++;
+
+            // Echo the buffer back to the sender
+            iSendResult = send( ClientSocket, &spaces, sizeof(spaces), 0 );
             if (iSendResult == SOCKET_ERROR) {
                 printf("send failed\n");
                 sockClose(ClientSocket);
@@ -172,14 +175,17 @@ int main(void)
                 return 1;
             }
             printf("Bytes sent: %d\n", iSendResult);
-        } else  {
+        }
+        else if (iResult == 0)
+            printf("Connection closing...\n");
+        else  {
             printf("recv failed\n");
             sockClose(ClientSocket);
             sockQuit();
             return 1;
         }
 
-    } while (newInt > 0);
+    } while (iResult > 0);
 
     // cleanup
     sockClose(ClientSocket);
