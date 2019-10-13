@@ -4,31 +4,31 @@
 #include <netinet/in.h>
 #include <netinet/ip.h>
 #include <string.h>
-#include <fcntl.h> // for open
-#include <unistd.h> // for close
-#include <arpa/inet.h> // for inet_addr
- 
+#include <fcntl.h>      // for open
+#include <unistd.h>     // for close
+#include <arpa/inet.h>  // for inet_addr
+
 int main() {
   int c;
   struct sockaddr_in server;
   uint16_t a, b, suma;
-  
+
   c = socket(AF_INET, SOCK_STREAM, 0);
   if (c < 0) {
     printf("Eroare la crearea socketului client\n");
     return 1;
   }
-  
+
   memset(&server, 0, sizeof(server));
   server.sin_port = htons(1234);
   server.sin_family = AF_INET;
-  server.sin_addr.s_addr = inet_addr("0.0.0.0");
-  
+  server.sin_addr.s_addr = inet_addr("192.168.100.18");
+
   if (connect(c, (struct sockaddr *) &server, sizeof(server)) < 0) {
     printf("Eroare la conectarea la server\n");
     return 1;
   }
-  
+
   printf("a = ");
   scanf("%hu", &a);
   printf("b = ");
