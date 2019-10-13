@@ -1,0 +1,1 @@
+The client send to the server two sorted array of chars. The server will merge sort the two arrays and return the result to the client.

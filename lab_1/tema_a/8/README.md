@@ -1,0 +1,1 @@
+The client sends to the server two arrays of integers. The server returns an arrays containing the common numbers found in both arrays.

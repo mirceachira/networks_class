@@ -1,0 +1,1 @@
+The client sends to the server two arrays of numbers. The server returns to the client a list of numbers that are present in the first arrays but not in the second.
